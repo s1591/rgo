@@ -1,7 +1,5 @@
 package stations
 
-import "math/rand"
-
 // struct to hold some info about station
 type RadioStation struct {
 	Name    string
@@ -27,9 +25,9 @@ var (
 // register registers the main station
 //
 // it appends the Main Station into Stations and fills the SMap
-func (rs RadioStations) Register() {
-	Stations = append(Stations, rs)
-	SMap[rs.Name] = rs
+func (rs *RadioStations) Register() {
+	Stations = append(Stations, *rs)
+	SMap[rs.Name] = *rs
 }
 
 func CreateMainStation(name string, stations ...RadioStation) RadioStations {
@@ -39,8 +37,3 @@ func CreateMainStation(name string, stations ...RadioStation) RadioStations {
 	}
 }
 
-// returns a random station
-func RandomStation() RadioStation {
-	r := Stations[rand.Intn(len(Stations))]
-	return (*r.Stations)[rand.Intn(len(*r.Stations))]
-}
