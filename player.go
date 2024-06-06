@@ -13,12 +13,18 @@ import (
 )
 
 var (
-	player      *mpv.Mpv
+	player     *mpv.Mpv
+	titleStyle = lipgloss.NewStyle().
+			Bold(true).Underline(false).
+			Foreground(lipgloss.Color("#b4befe"))
 	playerStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			Align(lipgloss.Center).Padding(1, 1)
-	titleStyle = lipgloss.NewStyle().
-			Bold(true)
+			BorderForeground(lipgloss.Color("#cba6f7")).
+			Padding(1, 1).
+			Align(lipgloss.Center).BorderLeft(false).
+			BorderRight(false)
+	mediaStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#b4befe"))
 )
 
 type model struct {
@@ -68,16 +74,7 @@ func Play(station stations.RadioStation) {
 }
 
 func (m model) Init() tea.Cmd {
-	player = mpv.New()
-	err := player.Initialize()
-	if err != nil {
-		panic(err)
-	}
-	player.SetProperty("video", mpv.FormatFlag, false)
-	err = player.Command([]string{"loadfile", m.station.Url})
-	if err != nil {
-		panic(err)
-	}
+	m.initializePlayer()
 	return m.spinner.Tick
 }
 
@@ -128,16 +125,16 @@ func (m model) View() string {
 
 	ui += titleStyle.Render(m.station.Name)
 	if m.displayWebsite {
-		ui += titleStyle.Render(" • " + m.station.Website)
+		ui += " • " + titleStyle.Render(m.station.Website)
 	}
 	ui += "\n"
 
 	if m.paused {
-		ui += "  "
+		ui += mediaStyle.Render("  ")
 	} else {
-		ui += m.spinner.View() + "  "
+		ui += mediaStyle.Render(m.spinner.View()) + "  "
 	}
-	ui += m.title + "\n"
+	ui += mediaStyle.Render(m.title) + "\n"
 	ui += m.help.View(m.keys)
 
 	return playerStyle.Render(ui) + "\n"
@@ -147,6 +144,19 @@ func (m *model) togglePause() {
 	if player != nil {
 		m.paused = !m.paused
 		player.SetProperty("pause", mpv.FormatFlag, m.paused)
+	}
+}
+
+func (m model) initializePlayer() {
+	player = mpv.New()
+	err := player.Initialize()
+	if err != nil {
+		panic(err)
+	}
+	player.SetProperty("video", mpv.FormatFlag, false)
+	err = player.Command([]string{"loadfile", m.station.Url})
+	if err != nil {
+		panic(err)
 	}
 }
 
