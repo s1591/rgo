@@ -6,12 +6,14 @@ import (
 	"github.com/charmbracelet/huh"
 )
 
-func RunSelect() (stations.RadioStation, error) {
+// run the huh select prompt
+//
+// the options are taken from station.SMap
+func RunSelect() (chosenStation stations.RadioStation, err error) { // integrate into bubble tea
 
 	var (
 		chosenMainStation stations.RadioStations
 		msOptions         []huh.Option[stations.RadioStations]
-		chosenStation     stations.RadioStation
 		sOptions          []huh.Option[stations.RadioStation]
 	)
 
@@ -24,10 +26,10 @@ func RunSelect() (stations.RadioStation, error) {
 		Value(&chosenMainStation).WithTheme(huh.ThemeCatppuccin()).
 		WithHeight(10)
 
-    err := huh.NewForm(huh.NewGroup(ms)).Run()
-    if err != nil {
-        return chosenStation, err
-    }
+	err = huh.NewForm(huh.NewGroup(ms)).Run()
+	if err != nil {
+		return
+	}
 
 	for _, s := range *chosenMainStation.Stations {
 		sOptions = append(sOptions, huh.NewOption(s.Name, s))
@@ -40,6 +42,6 @@ func RunSelect() (stations.RadioStation, error) {
 
 	err = huh.NewForm(huh.NewGroup(s)).Run()
 
-	return chosenStation, err
+	return
 
 }
